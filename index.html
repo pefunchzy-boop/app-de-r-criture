@@ -2,39 +2,407 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-  <title>TextCraft</title>
-
-  <!-- PWA & Mobile settings -->
-  <link rel="manifest" href="manifest.json">
-  <meta name="theme-color" content="#4F46E5">
-  
-  <!-- Apple iOS Web App Settings -->
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="TextCraft">
-  
-  <!-- Icons -->
-  <link rel="icon" type="image/svg+xml" href="icon.svg">
-  <link rel="apple-touch-icon" href="icon.svg">
-
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TextCraft - Dictée, Humanisation & Reformulation</title>
   <style>
     :root {
-      --primary: #4F46E5;
-      --primary-hover: #4338CA;
-      --bg: #F9FAFB;
-      --card-bg: #FFFFFF;
-      --text: #1F2937;
-      --accent-red: #EF4444;
+      --bg: #f8fafc;
+      --card-bg: #ffffff;
+      --text: #1e293b;
+      --text-muted: #64748b;
+      --border: #e2e8f0;
+      --primary: #4f46e5;
+      --primary-hover: #4338ca;
+      --accent-red: #ef4444;
+      --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
     }
 
     * {
       box-sizing: border-box;
       margin: 0;
       padding: 0;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-      -webkit-tap-highlight-color: transparent;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
     }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 650px;
+      margin: 0 auto;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    header h1 {
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--primary);
+      margin-bottom: 4px;
+    }
+
+    header p {
+      font-size: 0.95rem;
+      color: var(--text-muted);
+    }
+
+    .card {
+      background: var(--card-bg);
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: var(--shadow);
+      border: 1px solid var(--border);
+      margin-bottom: 20px;
+    }
+
+    .input-group {
+      margin-bottom: 15px;
+    }
+
+    input[type="password"],
+    input[type="text"] {
+      width: 100%;
+      padding: 10px 14px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-size: 0.9rem;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    input[type="password"]:focus,
+    input[type="text"]:focus,
+    textarea:focus {
+      border-color: var(--primary);
+    }
+
+    .textarea-wrapper {
+      position: relative;
+    }
+
+    textarea {
+      width: 100%;
+      min-height: 120px;
+      padding: 12px 45px 12px 12px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-size: 0.95rem;
+      resize: vertical;
+      outline: none;
+      line-height: 1.5;
+    }
+
+    .mic-btn {
+      position: absolute;
+      right: 10px;
+      bottom: 12px;
+      background: var(--primary);
+      color: white;
+      border: none;
+      border-radius: 50%;
+      width: 34px;
+      height: 34px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 1rem;
+      transition: background 0.2s, transform 0.1s;
+    }
+
+    .mic-btn:hover {
+      background: var(--primary-hover);
+    }
+
+    .mic-btn.recording {
+      background: var(--accent-red);
+      animation: pulse 1.5s infinite;
+    }
+
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.1); }
+      100% { transform: scale(1); }
+    }
+
+    .button-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+      margin-top: 15px;
+    }
+
+    .btn {
+      padding: 10px 14px;
+      background: var(--primary);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 0.875rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: background 0.2s;
+    }
+
+    .btn:hover {
+      background: var(--primary-hover);
+    }
+
+    .result-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+
+    .result-header h2 {
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .copy-btn {
+      background: transparent;
+      border: 1px solid var(--border);
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .copy-btn:hover {
+      background: #f1f5f9;
+      color: var(--text);
+    }
+
+    .result-box {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 12px;
+      font-size: 0.95rem;
+      line-height: 1.5;
+      min-height: 80px;
+      white-space: pre-wrap;
+    }
+
+    .result-box.error {
+      color: var(--accent-red);
+      background: #fef2f2;
+      border-color: #fecaca;
+    }
+
+    .result-box.loading {
+      color: var(--text-muted);
+      font-style: italic;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <header>
+      <h1>TextCraft</h1>
+      <p>Dictée, Humanisation & Reformulation</p>
+    </header>
+
+    <div class="card">
+      <div class="input-group">
+        <input type="password" id="apiKeyInput" placeholder="Colle ta Clé API Google Gemini ici...">
+      </div>
+
+      <div class="textarea-wrapper">
+        <textarea id="dictInput" placeholder="Colle le texte d'une IA ou clique sur le micro pour dicter..."></textarea>
+        <button type="button" class="mic-btn" id="micBtn" onclick="toggleDictation()" title="Activer la dictée vocale">🎙️</button>
+      </div>
+
+      <div class="button-grid">
+        <button class="btn" onclick="processText('humaniser')">🪄 Humaniser</button>
+        <button class="btn" onclick="processText('correction')">✒️ Orthographe</button>
+        <button class="btn" onclick="processText('lettre')">✉️ Lettre</button>
+        <button class="btn" onclick="processText('prompt')">💡 Prompt IA</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="result-header">
+        <h2>Résultat</h2>
+        <button class="copy-btn" id="copyBtn" onclick="copyResult()">Copier</button>
+      </div>
+      <div id="resultText" class="result-box">Le texte transformé s'affichera ici...</div>
+    </div>
+  </div>
+
+  <script>
+    // --- RECONNAISSANCE VOCALE ---
+    let recognition = null;
+    let isRecording = false;
+
+    if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      recognition = new SpeechRecognition();
+      recognition.continuous = true;
+      recognition.interimResults = true;
+      recognition.lang = 'fr-FR';
+
+      recognition.onresult = (event) => {
+        let transcript = '';
+        for (let i = event.resultIndex; i < event.results.length; i++) {
+          transcript += event.results[i][0].transcript;
+        }
+        document.getElementById('dictInput').value = transcript;
+      };
+
+      recognition.onerror = (e) => {
+        console.error("Erreur de reconnaissance vocale :", e);
+        stopDictation();
+      };
+
+      recognition.onend = () => {
+        stopDictation();
+      };
+    }
+
+    function toggleDictation() {
+      if (!recognition) {
+        alert("La reconnaissance vocale n'est pas supportée par votre navigateur.");
+        return;
+      }
+      if (isRecording) {
+        recognition.stop();
+        stopDictation();
+      } else {
+        try {
+          recognition.start();
+          isRecording = true;
+          const micBtn = document.getElementById('micBtn');
+          micBtn.classList.add('recording');
+          document.getElementById('dictInput').placeholder = "Parlez maintenant...";
+        } catch (err) {
+          console.error("Erreur au démarrage du micro :", err);
+        }
+      }
+    }
+
+    function stopDictation() {
+      isRecording = false;
+      const micBtn = document.getElementById('micBtn');
+      if (micBtn) {
+        micBtn.classList.remove('recording');
+      }
+      document.getElementById('dictInput').placeholder = "Colle le texte d'une IA ou clique sur le micro pour dicter...";
+    }
+
+    // --- TRAITEMENT DU TEXTE AVEC API GEMINI ---
+    async function processText(mode) {
+      const text = document.getElementById('dictInput').value.trim();
+      const apiKey = document.getElementById('apiKeyInput').value.trim();
+
+      if (!text) {
+        alert("Veuillez entrer ou dicter du texte.");
+        return;
+      }
+
+      if (!apiKey) {
+        alert("Saisissez votre clé API Google Gemini dans le champ en haut !");
+        return;
+      }
+
+      const resultDiv = document.getElementById('resultText');
+      resultDiv.className = "result-box loading";
+      resultDiv.innerText = "Traitement par l'IA en cours...";
+
+      let systemPrompt = "";
+      if (mode === 'humaniser') {
+        systemPrompt = "Réécris le texte suivant de façon fluide, naturelle, vivante et humaine, en gardant 100% du sens initial. Supprime le ton trop formel, scolaire ou synthétique. Ne rajoute pas d'explications, pas de bonjour, pas de commentaires sur la réécriture. Output uniquement le texte final.";
+      } else if (mode === 'correction') {
+        systemPrompt = "Corrige uniquement les fautes d'orthographe, de grammaire et de ponctuation du texte suivant, sans modifier le ton ni ajouter de commentaires. Output uniquement le texte corrigé.";
+      } else if (mode === 'lettre') {
+        systemPrompt = "Mets en forme ce texte pour en faire une lettre ou un message très formel, bien structuré, poli et professionnel. Ne rajoute pas de commentaires.";
+      } else if (mode === 'prompt') {
+        systemPrompt = "Transforme cette idée/brouillon suivant en un prompt extrêmement clair, structuré, précis et détaillé pour une IA (LLM). Doit être prêt à l'emploi. Ne rajoute pas d'explications.";
+      }
+
+      // Utilisation du modèle gemini-1.5-flash officiel
+      const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${encodeURIComponent(apiKey)}`;
+
+      try {
+        const response = await fetch(url, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            contents: [
+              {
+                parts: [
+                  { text: systemPrompt + "\n\nTexte :\n" + text }
+                ]
+              }
+            ]
+          })
+        });
+
+        const data = await response.json();
+
+        if (data.error) {
+          resultDiv.className = "result-box error";
+          resultDiv.innerText = "Erreur API : " + data.error.message;
+          return;
+        }
+
+        if (data.candidates && data.candidates[0] && data.candidates[0].content && data.candidates[0].content.parts) {
+          const output = data.candidates[0].content.parts[0].text;
+          resultDiv.className = "result-box";
+          resultDiv.innerText = output;
+        } else {
+          resultDiv.className = "result-box error";
+          resultDiv.innerText = "Réponse inattendue de l'API Gemini.";
+        }
+      } catch (error) {
+        resultDiv.className = "result-box error";
+        resultDiv.innerText = "Une erreur est survenue lors de la connexion à l'API : " + error.message;
+      }
+    }
+
+    // --- COPIER LE RÉSULTAT ---
+    function copyResult() {
+      const resultText = document.getElementById('resultText').innerText;
+      if (!resultText || resultText === "Le texte transformé s'affichera ici..." || resultText.startsWith("Erreur")) {
+        return;
+      }
+
+      navigator.clipboard.writeText(resultText).then(() => {
+        const copyBtn = document.getElementById('copyBtn');
+        const originalText = copyBtn.innerText;
+        copyBtn.innerText = "Copié !";
+        setTimeout(() => {
+          copyBtn.innerText = originalText;
+        }, 2000);
+      }).catch(err => {
+        console.error("Erreur de copie :", err);
+      });
+    }
+  </script>
+</body>
+</html>    }
 
     body {
       background-color: var(--bg);
